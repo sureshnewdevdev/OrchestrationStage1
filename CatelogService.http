@@ -1,0 +1,6 @@
+@CatelogService_HostAddress = http://localhost:5200
+
+GET {{CatelogService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
