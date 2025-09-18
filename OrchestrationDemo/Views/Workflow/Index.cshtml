@@ -1,5 +1,6 @@
-@model WorkflowViewModel
+@model OrchestrationDemo.ViewModels.WorkflowViewModel
 @using System.Text.Json
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 @{
     ViewData["Title"] = "Order Orchestration";
@@ -9,7 +10,7 @@
 <h1>Order Orchestration</h1>
 <p>Select the starting state to execute the orchestration workflow. Each step returns a payload describing what happened and the next state that will be executed.</p>
 
-<form asp-action="Run" method="post">
+<form asp-action="Run" method="post" class="workflow-form">
     @Html.AntiForgeryToken()
     <div class="form-row">
         <label asp-for="SelectedState">Start from state</label>
@@ -21,7 +22,7 @@
 @if (Model.Steps?.Any() == true)
 {
     <h2>Execution results</h2>
-    <table>
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>State</th>
