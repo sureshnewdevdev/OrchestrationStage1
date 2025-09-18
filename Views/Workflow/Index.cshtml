@@ -1,0 +1,58 @@
+@model WorkflowViewModel
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Order Orchestration";
+    var serializerOptions = new JsonSerializerOptions { WriteIndented = true };
+}
+
+<h1>Order Orchestration</h1>
+<p>Select the starting state to execute the orchestration workflow. Each step returns a payload describing what happened and the next state that will be executed.</p>
+
+<form asp-action="Run" method="post">
+    @Html.AntiForgeryToken()
+    <div class="form-row">
+        <label asp-for="SelectedState">Start from state</label>
+        <select asp-for="SelectedState" asp-items="new SelectList(Model.AvailableStates)"></select>
+        <button type="submit">Run workflow</button>
+    </div>
+</form>
+
+@if (Model.Steps?.Any() == true)
+{
+    <h2>Execution results</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>State</th>
+                <th>Message</th>
+                <th>Next State</th>
+                <th>Payload</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var step in Model.Steps)
+            {
+                <tr>
+                    <td>@step.CurrentState</td>
+                    <td>@step.Message</td>
+                    <td>@(step.NextState?.ToString() ?? "Complete")</td>
+                    <td>
+                        @if (step.Payload is null)
+                        {
+                            <em>No payload</em>
+                        }
+                        else
+                        {
+                            <pre>@JsonSerializer.Serialize(step.Payload, serializerOptions)</pre>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p><em>The workflow has not been executed yet.</em></p>
+}

@@ -1,4 +1,4 @@
-﻿using System.Threading.RateLimiting;
+using CatelogService.Model;
 
 namespace CatelogService.Model.Data
 {
@@ -12,145 +12,187 @@ namespace CatelogService.Model.Data
 
     public interface ICommand
     {
-        public OrcState PreviousCommand { get; set; }
-        public OrcState NextCommand { get; set; }
+        OrcState State { get; }
+        OrcState? PreviousCommand { get; set; }
+        OrcState? NextCommand { get; }
         string CommandName { get; }
-        void Execute();
+        CommandResult Execute();
     }
 
     public class ProductCatalogShowCommand : ICommand
     {
-        public OrcState PreviousCommand { get; set; }
-        public OrcState NextCommand { get; set; }
+        public OrcState State => OrcState.ProductCatalogShow;
+        public OrcState? PreviousCommand { get; set; }
+        public OrcState? NextCommand { get; private set; }
         public string CommandName => "ProductCatalogShow";
-        public void Execute()
+
+        public CommandResult Execute()
         {
             try
             {
-                DoProductShow();
+                var products = DoProductShow();
                 NextCommand = OrcState.ProductAddedToCart;
+                return new CommandResult(State, NextCommand, "Loaded product catalog.", products);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                NextCommand = OrcState.ProductCatalogShow;
+                NextCommand = State;
+                return new CommandResult(State, NextCommand, $"Unable to load products: {ex.Message}");
             }
-            // Implementation for showing product catalog
         }
 
-
-        private void DoProductShow()
+        private IReadOnlyList<Product> DoProductShow()
         {
-            List<Product> productList = new List<Product>()
-            {
-                new Product(){ ProductId=1,ProductName="Product 1"},
-                new Product(){ ProductId=2,ProductName="Product 2"},
-                new Product(){ ProductId=3,ProductName="Product 3"},
-                new Product(){ ProductId=4,ProductName="Product 4"},
-                new Product(){ ProductId=5,ProductName="Product 5"},
-            };
-
-
-            //return (IActionResult)productList;
+            return SampleData.GetProducts();
         }
     }
 
-    /// <summary>
-    /// Command to start an order process ( ProductCatalog -> BillPaid -> NotificationSent )
-    /// </summary>
-    public class StartOrderCommand : ICommand
+    public class AddProductToCartCommand : ICommand
     {
-        public string CommandName => "StartOrder";
+        public OrcState State => OrcState.ProductAddedToCart;
+        public OrcState? PreviousCommand { get; set; }
+        public OrcState? NextCommand { get; private set; }
+        public string CommandName => "AddProductToCart";
 
-        public OrcState PreviousCommand { get ; set ; }
-        public OrcState NextCommand { get ; set ; }
-
-        public void Execute()
+        public CommandResult Execute()
         {
-            // Implementation for starting an order
             try
             {
-                //Do action based on OrcState => Catalog, Bill, Notification
-                DoSomething();
+                var cart = BuildCart();
                 NextCommand = OrcState.BillPaid;
+                return new CommandResult(State, NextCommand, "Product added to cart.", cart);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-
-                throw;
+                NextCommand = PreviousCommand ?? OrcState.ProductCatalogShow;
+                return new CommandResult(State, NextCommand, $"Unable to update cart: {ex.Message}");
             }
         }
 
-        private void DoSomething()
+        private CartSummary BuildCart()
         {
-            
+            var cart = SampleData.CreateCart();
+            return cart;
         }
     }
 
-    /// <summary>
-    /// Command to pay a bill ( BillPaid -> NotificationSent )
-    /// </summary>
     public class PayBillCommand : ICommand
     {
-        public OrcState PreviousCommand { get; set; }
-        public OrcState NextCommand { get; set; }
-
+        public OrcState State => OrcState.BillPaid;
+        public OrcState? PreviousCommand { get; set; }
+        public OrcState? NextCommand { get; private set; }
         public string CommandName => "PayBill";
-        public void Execute()
+
+        public CommandResult Execute()
         {
-          
+            try
+            {
+                var receipt = ProcessPayment();
+                NextCommand = OrcState.NotificationSent;
+                return new CommandResult(State, NextCommand, "Payment completed successfully.", receipt);
+            }
+            catch (Exception ex)
+            {
+                NextCommand = State;
+                return new CommandResult(State, NextCommand, $"Payment failed: {ex.Message}");
+            }
+        }
+
+        private PaymentReceipt ProcessPayment()
+        {
+            var cart = SampleData.CreateCart();
+            return new PaymentReceipt
+            {
+                ReceiptNumber = $"RCT-{Guid.NewGuid().ToString("N")[..8].ToUpperInvariant()}",
+                PaidOn = DateTime.UtcNow,
+                Amount = cart.Total,
+                PaymentMethod = "Credit Card"
+            };
         }
     }
 
-    /// <summary>
-    /// Command to send a notification ( NotificationSent )
-    /// </summary>
     public class SendNotificationCommand : ICommand
     {
-        public OrcState PreviousCommand { get; set; }
-        public OrcState NextCommand { get; set; }
-
-
+        public OrcState State => OrcState.NotificationSent;
+        public OrcState? PreviousCommand { get; set; }
+        public OrcState? NextCommand { get; private set; }
         public string CommandName => "SendNotification";
-        public void Execute()
+
+        public CommandResult Execute()
         {
-            // Implementation for sending a notification
+            try
+            {
+                var result = DispatchNotification();
+                NextCommand = null;
+                return new CommandResult(State, NextCommand, "Notification delivered.", result);
+            }
+            catch (Exception ex)
+            {
+                NextCommand = State;
+                return new CommandResult(State, NextCommand, $"Notification failed: {ex.Message}");
+            }
+        }
+
+        private NotificationResult DispatchNotification()
+        {
+            return new NotificationResult
+            {
+                Recipient = "customer@example.com",
+                Channel = "Email",
+                Message = "Thanks for shopping with us! Your payment was received.",
+                SentOn = DateTime.UtcNow
+            };
         }
     }
 
     public class CommandInvoker
     {
-        public ICommand ActionInvoke(OrcState orcState)
+        private readonly IDictionary<OrcState, Func<ICommand>> _commandFactory;
+
+        public CommandInvoker()
         {
-            ICommand command = new StartOrderCommand(); // Default command
-            OrcState orcStateAfterExecution = OrcState.ProductCatalogShow;
-            switch (orcState)
+            _commandFactory = new Dictionary<OrcState, Func<ICommand>>
             {
-                case OrcState.ProductCatalogShow:
-                    command = new ProductCatalogShowCommand();
-                    command.Execute();
-                    orcStateAfterExecution = command.NextCommand;
+                { OrcState.ProductCatalogShow, () => new ProductCatalogShowCommand() },
+                { OrcState.ProductAddedToCart, () => new AddProductToCartCommand() },
+                { OrcState.BillPaid, () => new PayBillCommand() },
+                { OrcState.NotificationSent, () => new SendNotificationCommand() }
+            };
+        }
 
-                    break;
-                case OrcState.ProductAddedToCart:
-                    command.Execute();
-                    orcStateAfterExecution = command.NextCommand;
-                    break;
-                case OrcState.BillPaid:
-                    command = new PayBillCommand();
-                    command.Execute();
-                    orcStateAfterExecution = command.NextCommand;
-                    break;
-                case OrcState.NotificationSent:
-                    command = new SendNotificationCommand();
-                    command.Execute();
-                    orcStateAfterExecution = command.NextCommand;
-
-                    break;
-                default:
-                    break;
+        public CommandResult Execute(OrcState state, OrcState? previous = null)
+        {
+            if (!_commandFactory.TryGetValue(state, out var factory))
+            {
+                throw new ArgumentOutOfRangeException(nameof(state), state, "Unsupported orchestration state.");
             }
 
-            return command;
+            var command = factory();
+            command.PreviousCommand = previous;
+            return command.Execute();
+        }
+
+        public IReadOnlyList<CommandResult> RunWorkflow(OrcState startState)
+        {
+            var results = new List<CommandResult>();
+            OrcState? current = startState;
+            OrcState? previous = null;
+
+            while (current.HasValue)
+            {
+                var result = Execute(current.Value, previous);
+                results.Add(result);
+
+                if (!result.NextState.HasValue || result.IsTerminal)
+                {
+                    break;
+                }
+
+                previous = current;
+                current = result.NextState;
+            }
+
+            return results;
         }
     }
 }
