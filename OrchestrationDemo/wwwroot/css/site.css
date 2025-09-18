@@ -1,0 +1,23 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.workflow-form {
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.workflow-form select {
+    min-width: 220px;
+}
+
+pre {
+    white-space: pre-wrap;
+    background-color: #f1f3f5;
+    border-radius: 0.25rem;
+    padding: 0.75rem;
+    margin-bottom: 0;
+}

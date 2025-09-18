@@ -5,6 +5,8 @@ VisualStudioVersion = 17.12.35707.178 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CatelogService", "CatelogService.csproj", "{929E7F03-79B5-4CDB-A5AD-65874499A43B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrchestrationDemo", "OrchestrationDemo\\OrchestrationDemo.csproj", "{A6F79961-49F8-488F-9146-4826F8350417}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,11 +14,16 @@ Global
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{929E7F03-79B5-4CDB-A5AD-65874499A43B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{929E7F03-79B5-4CDB-A5AD-65874499A43B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{929E7F03-79B5-4CDB-A5AD-65874499A43B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{929E7F03-79B5-4CDB-A5AD-65874499A43B}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
+                {929E7F03-79B5-4CDB-A5AD-65874499A43B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+                {929E7F03-79B5-4CDB-A5AD-65874499A43B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+                {929E7F03-79B5-4CDB-A5AD-65874499A43B}.Release|Any CPU.Build.0 = Release|Any CPU
+                {A6F79961-49F8-488F-9146-4826F8350417}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+                {A6F79961-49F8-488F-9146-4826F8350417}.Debug|Any CPU.Build.0 = Debug|Any CPU
+                {A6F79961-49F8-488F-9146-4826F8350417}.Release|Any CPU.ActiveCfg = Release|Any CPU
+                {A6F79961-49F8-488F-9146-4826F8350417}.Release|Any CPU.Build.0 = Release|Any CPU
+        EndGlobalSection
+        GlobalSection(SolutionProperties) = preSolution
+                HideSolutionNode = FALSE
+                StartupProject = OrchestrationDemo
+        EndGlobalSection
 EndGlobal

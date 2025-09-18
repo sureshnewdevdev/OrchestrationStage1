@@ -1,8 +1,8 @@
 using CatelogService.Model.Data;
-using CatelogService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using OrchestrationDemo.ViewModels;
 
-namespace CatelogService.Controllers
+namespace OrchestrationDemo.Controllers
 {
     public class WorkflowController : Controller
     {

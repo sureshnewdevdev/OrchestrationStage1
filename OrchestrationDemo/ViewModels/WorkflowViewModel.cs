@@ -1,6 +1,6 @@
 using CatelogService.Model.Data;
 
-namespace CatelogService.ViewModels
+namespace OrchestrationDemo.ViewModels
 {
     public class WorkflowViewModel
     {
