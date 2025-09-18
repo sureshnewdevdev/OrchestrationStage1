@@ -6,7 +6,7 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Workflow/Index");
+    app.UseExceptionHandler("/orchestration-demo/workflow");
     app.UseHsts();
 }
 
@@ -17,8 +17,11 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Workflow}/{action=Index}/{id?}");
+app.MapControllers();
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/orchestration-demo/workflow");
+    return Task.CompletedTask;
+});
 
 app.Run();
