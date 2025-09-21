@@ -1,0 +1,49 @@
+@{
+    ViewData["Title"] = "Welcome";
+}
+
+<section class="text-center py-5">
+    <h1 class="display-5 fw-bold mb-3">Welcome to the Order Orchestration Demo</h1>
+    <p class="lead mb-4">
+        Explore how an order moves through the different stages of our orchestration workflow.
+        This guided experience shows the states, transitions, and payloads that power the process.
+    </p>
+    <a class="btn btn-primary btn-lg" asp-controller="Workflow" asp-action="Index">
+        View the workflow
+    </a>
+</section>
+
+<section class="row g-4 justify-content-center">
+    <article class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h2 class="h4">Interactive Execution</h2>
+                <p>Pick a starting state and run the workflow to see each command that gets executed.</p>
+            </div>
+        </div>
+    </article>
+    <article class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h2 class="h4">Detailed Payloads</h2>
+                <p>Inspect the payload returned by every step to understand what data moves through the system.</p>
+            </div>
+        </div>
+    </article>
+    <article class="col-md-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h2 class="h4">State Transitions</h2>
+                <p>Follow the journey from the starting point to completion and learn how each step determines the next one.</p>
+            </div>
+        </div>
+    </article>
+</section>
+
+<section class="mt-5">
+    <h2 class="h4">Ready to dive in?</h2>
+    <p>
+        Use the button above to launch the workflow explorer. Once you are there you can re-run the process from any state
+        to experiment with different execution paths.
+    </p>
+</section>
